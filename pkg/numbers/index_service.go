@@ -3,12 +3,9 @@ package numbers
 import (
 	"errors"
 	"math"
-)
 
-// TODO:
-// - implement service with single method to look for index of given value with 10% level of conformation
-// - add unit tests
-// - move service/repository to separate package
+	"go.uber.org/zap"
+)
 
 type NumbersRepository interface {
 	GetIndex(value int) (int, error)
@@ -16,19 +13,23 @@ type NumbersRepository interface {
 
 type IndexService struct {
 	sortedNumbers NumbersRepository
-	// TODO: add logger
+	logger        *zap.Logger
 }
 
-func NewIndexService(repo NumbersRepository) *IndexService {
+func NewIndexService(repo NumbersRepository, logger *zap.Logger) *IndexService {
 	return &IndexService{
 		sortedNumbers: repo,
+		logger:        logger,
 	}
 }
 
 func (i IndexService) GetIndex(value int) (int, error) {
 	idx, err := i.sortedNumbers.GetIndex(value)
 	if err != nil {
-		// TODO: log error at service level
+		i.logger.Error("failed to get index for value",
+			zap.Int("value", value),
+			zap.String("error_message", err.Error()),
+		)
 	}
 
 	return idx, err
@@ -39,39 +40,31 @@ var ErrNotFound = errors.New("index for given value not found")
 type NumbersSliceRepository struct {
 	numbers           []int
 	conformationLevel int
+	logger            *zap.Logger
 }
 
-func NewNumbersSliceRepository(numbers []int, conformationLevel int) *NumbersSliceRepository {
+func NewNumbersSliceRepository(numbers []int, conformationLevel int, logger *zap.Logger) *NumbersSliceRepository {
 	return &NumbersSliceRepository{
 		numbers:           numbers,
 		conformationLevel: conformationLevel,
+		logger:            logger,
 	}
 }
 
 func (s *NumbersSliceRepository) GetIndex(value int) (int, error) {
-	// -1 means that index wasn't found for either exact value or in conformation level
-	closestNumberIdx := -1
-	closestNumberDiff := float64(value)
-
 	for idx, number := range s.numbers {
 		if value == number {
-			closestNumberIdx = idx
-			break
+			s.logger.Debug("found index for value's exact match", zap.Int("value", value), zap.Int("index", idx))
+			return idx, nil
 		}
 
 		numberDiff := math.Abs(float64(number - value))
 		numberFoundInConformationLevel := numberDiff < float64(number)/float64(s.conformationLevel)
-		if numberFoundInConformationLevel && numberDiff < closestNumberDiff {
-			// Note - to be decided during code review:
-			// for better efficiency we could omit finding closestNumberIdx
-			// and simply return the first match below conformation level
-			closestNumberIdx = idx
-			closestNumberDiff = numberDiff
+		if numberFoundInConformationLevel {
+			s.logger.Debug("found index in conformation level", zap.Int("value", value), zap.Int("index", idx))
+			return idx, nil
 		}
 	}
 
-	if closestNumberIdx < 0 {
-		return closestNumberIdx, ErrNotFound
-	}
-	return closestNumberIdx, nil
+	return -1, ErrNotFound
 }

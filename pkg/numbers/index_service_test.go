@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"go.uber.org/zap"
 )
 
 func TestIndexService(t *testing.T) {
@@ -82,8 +83,9 @@ func TestIndexService(t *testing.T) {
 	}
 	testConformationLevel := 10
 
-	repo := NewNumbersSliceRepository(testData, testConformationLevel)
-	service := NewIndexService(repo)
+	nopLogger := zap.NewNop()
+	repo := NewNumbersSliceRepository(testData, testConformationLevel, nopLogger)
+	service := NewIndexService(repo, nopLogger)
 	for idx, tc := range tt {
 		t.Run(tc.name, func(t *testing.T) {
 			gotIndex, err := service.GetIndex(tc.value)
