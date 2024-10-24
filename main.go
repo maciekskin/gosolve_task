@@ -1,6 +1,18 @@
 package main
 
-func main() {}
+import "os"
+
+func main() {
+	err := runApp()
+	if err != nil {
+		// TODO: log error
+		os.Exit(-1)
+	}
+}
+
+func runApp() error {
+	return nil
+}
 
 // TODO:
 // - create http server and define a GET endpoint
