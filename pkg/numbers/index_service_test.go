@@ -11,61 +11,61 @@ func TestIndexService(t *testing.T) {
 	tt := []struct {
 		name          string
 		value         int
-		expectedIndex int
+		expected      Number
 		expectedError bool
 	}{
 		{
 			name:          "Failure for value -100",
 			value:         -100,
-			expectedIndex: -1,
+			expected:      Number{Index: -1, Value: -100},
 			expectedError: true,
 		},
 		{
-			name:          "Success for value 1",
-			value:         1,
-			expectedIndex: 0,
+			name:     "Success for value 1",
+			value:    1,
+			expected: Number{Index: 0, Value: 1},
 		},
 		{
 			name:          "Failure for value 5",
 			value:         5,
-			expectedIndex: -1,
+			expected:      Number{Index: -1, Value: 5},
 			expectedError: true,
 		},
 		{
-			name:          "Success for value 65",
-			value:         65,
-			expectedIndex: 5,
+			name:     "Success for value 65",
+			value:    65,
+			expected: Number{Index: 5, Value: 60},
 		},
 		{
-			name:          "Success for value 840",
-			value:         840,
-			expectedIndex: 7,
+			name:     "Success for value 840",
+			value:    840,
+			expected: Number{Index: 7, Value: 800},
 		},
 
 		{
-			name:          "Success for value 900",
-			value:         900,
-			expectedIndex: 8,
+			name:     "Success for value 900",
+			value:    900,
+			expected: Number{Index: 8, Value: 900},
 		},
 		{
-			name:          "Success for value 910",
-			value:         910,
-			expectedIndex: 8,
+			name:     "Success for value 910",
+			value:    910,
+			expected: Number{Index: 8, Value: 900},
 		},
 		{
-			name:          "Success for value 1000",
-			value:         1000,
-			expectedIndex: 9,
+			name:     "Success for value 1000",
+			value:    1000,
+			expected: Number{Index: 9, Value: 1000},
 		},
 		{
-			name:          "Success for value 1090",
-			value:         1090,
-			expectedIndex: 9,
+			name:     "Success for value 1090",
+			value:    1090,
+			expected: Number{Index: 9, Value: 1000},
 		},
 		{
 			name:          "Failure for value 1100",
 			value:         1100,
-			expectedIndex: -1,
+			expected:      Number{Index: -1, Value: 1100},
 			expectedError: true,
 		},
 	}
@@ -88,14 +88,14 @@ func TestIndexService(t *testing.T) {
 	service := NewIndexService(repo, nopLogger)
 	for idx, tc := range tt {
 		t.Run(tc.name, func(t *testing.T) {
-			gotIndex, err := service.GetIndex(tc.value)
+			gotNumber, err := service.GetIndex(tc.value)
 			if tc.expectedError {
 				assert.ErrorIs(t, err, ErrNotFound, "Test case %d", idx+1)
 			} else {
 				assert.NoError(t, err)
 			}
 
-			assert.Equal(t, tc.expectedIndex, gotIndex, "Test case %d", idx+1)
+			assert.Equal(t, tc.expected, gotNumber, "Test case %d", idx+1)
 		})
 	}
 }

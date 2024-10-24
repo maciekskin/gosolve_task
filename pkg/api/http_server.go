@@ -8,10 +8,11 @@ import (
 
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
+	"github.com/maciekskin/gosolve_task/pkg/numbers"
 )
 
 type IndexService interface {
-	GetIndex(int) (int, error)
+	GetIndex(int) (numbers.Number, error)
 }
 
 type ApiSevices struct {
@@ -33,12 +34,13 @@ func StartHttpServer(services ApiSevices, port int) error {
 			return
 		}
 
-		index, err := services.IndexService.GetIndex(value)
+		number, err := services.IndexService.GetIndex(value)
 		if err != nil {
 			w.WriteHeader(http.StatusNotFound)
 			response.ErrorMessage = err.Error()
 		}
-		response.Index = index
+		response.Index = number.Index
+		response.Value = number.Value
 
 		json.NewEncoder(w).Encode(response)
 	})
