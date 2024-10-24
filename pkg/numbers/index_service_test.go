@@ -37,11 +37,32 @@ func TestIndexService(t *testing.T) {
 			expected: Number{Index: 5, Value: 60},
 		},
 		{
+			name:     "Success for value 66",
+			value:    66,
+			expected: Number{Index: 5, Value: 60},
+		},
+		{
+			name:          "Failure for value 67",
+			value:         67,
+			expected:      Number{Index: -1, Value: 67},
+			expectedError: true,
+		},
+		{
+			name:          "Failure for value 636",
+			value:         636,
+			expected:      Number{Index: -1, Value: 636},
+			expectedError: true,
+		},
+		{
+			name:     "Success for value 637",
+			value:    637,
+			expected: Number{Index: 6, Value: 700},
+		},
+		{
 			name:     "Success for value 840",
 			value:    840,
 			expected: Number{Index: 7, Value: 800},
 		},
-
 		{
 			name:     "Success for value 900",
 			value:    900,
@@ -63,9 +84,14 @@ func TestIndexService(t *testing.T) {
 			expected: Number{Index: 9, Value: 1000},
 		},
 		{
-			name:          "Failure for value 1100",
-			value:         1100,
-			expected:      Number{Index: -1, Value: 1100},
+			name:     "Success for value 1100",
+			value:    1100,
+			expected: Number{Index: 9, Value: 1000},
+		},
+		{
+			name:          "Failure for value 2000",
+			value:         2000,
+			expected:      Number{Index: -1, Value: 2000},
 			expectedError: true,
 		},
 	}

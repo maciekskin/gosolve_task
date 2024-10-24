@@ -64,14 +64,13 @@ func (s *NumbersSliceRepository) GetIndex(value int) (Number, error) {
 		}
 	}
 
-	// TODO: add more test cases to see if these expressions could be reduced or optimized for better match in conformation level
 	if rightIdx < len(s.numbers) && s.numbers[rightIdx] == value {
 		return Number{Index: rightIdx, Value: value}, nil
 	} else if leftIdx > -1 && s.numbers[leftIdx] == value {
 		return Number{Index: leftIdx, Value: value}, nil
-	} else if leftIdx > -1 && math.Abs(float64(s.numbers[leftIdx]-value)) < float64(s.numbers[leftIdx])/float64(s.conformationLevel) {
+	} else if leftIdx > -1 && math.Abs(float64(s.numbers[leftIdx]-value)) < float64(value)/float64(s.conformationLevel) {
 		return Number{Index: leftIdx, Value: s.numbers[leftIdx]}, nil
-	} else if rightIdx < len(s.numbers) && math.Abs(float64(s.numbers[rightIdx]-value)) < float64(s.numbers[rightIdx])/float64(s.conformationLevel) {
+	} else if rightIdx < len(s.numbers) && math.Abs(float64(s.numbers[rightIdx]-value)) < float64(value)/float64(s.conformationLevel) {
 		return Number{Index: rightIdx, Value: s.numbers[rightIdx]}, nil
 	}
 	return Number{Index: -1, Value: value}, ErrNotFound
