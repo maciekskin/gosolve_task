@@ -2,6 +2,7 @@ package api
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -17,7 +18,7 @@ type ApiSevices struct {
 	IndexService IndexService
 }
 
-func StartHttpServer(services ApiSevices) error {
+func StartHttpServer(services ApiSevices, port int) error {
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
 	r.Get("/numbers/{value}", func(w http.ResponseWriter, r *http.Request) {
@@ -34,12 +35,12 @@ func StartHttpServer(services ApiSevices) error {
 
 		index, err := services.IndexService.GetIndex(value)
 		if err != nil {
-			w.WriteHeader(http.StatusBadRequest)
+			w.WriteHeader(http.StatusNotFound)
 			response.ErrorMessage = err.Error()
 		}
 		response.Index = index
 
 		json.NewEncoder(w).Encode(response)
 	})
-	return http.ListenAndServe(":8888", r)
+	return http.ListenAndServe(fmt.Sprintf(":%d", port), r)
 }
