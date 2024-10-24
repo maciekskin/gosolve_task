@@ -1,4 +1,4 @@
-module gosolve_task
+module github.com/maciekskin/gosolve_task
 
 go 1.22.5
 
