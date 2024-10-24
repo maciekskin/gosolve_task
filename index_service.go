@@ -29,13 +29,12 @@ func (i IndexService) GetIndex(value int) (int, error) {
 	idx, err := i.sortedNumbers.GetIndex(value)
 	if err != nil {
 		// TODO: log error at service level
-		return 0, err
 	}
 
 	return idx, err
 }
 
-var NotFoundError = errors.New("index for given value not found")
+var ErrNotFound = errors.New("index for given value not found")
 
 type NumbersSliceRepository struct {
 	numbers           []int
@@ -52,7 +51,7 @@ func NewNumbersSliceRepository(numbers []int, conformationLevel int) *NumbersSli
 func (s *NumbersSliceRepository) GetIndex(value int) (int, error) {
 	// -1 means that index wasn't found for either exact value or in conformation level
 	closestNumberIdx := -1
-	closestNumberDiff := value
+	closestNumberDiff := float64(value)
 
 	for idx, number := range s.numbers {
 		if value == number {
@@ -60,18 +59,19 @@ func (s *NumbersSliceRepository) GetIndex(value int) (int, error) {
 			break
 		}
 
-		numberDiff := number - value
-		numberFoundInConformationLevel := math.Abs(float64(numberDiff)) < float64(number)/float64(s.conformationLevel)
+		numberDiff := math.Abs(float64(number - value))
+		numberFoundInConformationLevel := numberDiff < float64(number)/float64(s.conformationLevel)
 		if numberFoundInConformationLevel && numberDiff < closestNumberDiff {
 			// Note - to be decided during code review:
 			// for better efficiency we could omit finding closestNumberIdx
 			// and simply return the first match below conformation level
 			closestNumberIdx = idx
+			closestNumberDiff = numberDiff
 		}
 	}
 
 	if closestNumberIdx < 0 {
-		return 0, NotFoundError
+		return closestNumberIdx, ErrNotFound
 	}
 	return closestNumberIdx, nil
 }
