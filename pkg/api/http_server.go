@@ -20,14 +20,14 @@ type ApiSevices struct {
 func StartHttpServer(services ApiSevices) error {
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
-	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
+	r.Get("/numbers/{value}", func(w http.ResponseWriter, r *http.Request) {
 		response := GetIndexResponse{Index: -1}
 
-		valueRaw := r.URL.Query().Get("value")
+		valueRaw := chi.URLParam(r, "value")
 		value, err := strconv.Atoi(valueRaw)
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
-			response.ErrorMessage = "value is missing or has invalid type"
+			response.ErrorMessage = "value has invalid type"
 			json.NewEncoder(w).Encode(response)
 			return
 		}

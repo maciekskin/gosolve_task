@@ -3,3 +3,6 @@ build: test
 
 test:
 	go test -v ./pkg/...
+
+run:
+	go run ./cmd/main.go
